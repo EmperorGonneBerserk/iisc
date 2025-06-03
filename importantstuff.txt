@@ -1,0 +1,10 @@
+1.Data porting from sqllite3 to postgres-sql
+cmds-
+-- python manage.py dumpdata --natural-primary --natural-foreign --indent 4 > data.json
+-- python manage.py loaddata data.json
+
+2.python manage.py loaddata data.json
+
+3. verifer2 func handles the request after the annotations
+
+4. Veriferimages func starting to for the verifiers

@@ -1,0 +1,14 @@
+1.Implemented csrf with session based login but the frontend must also use sessions
+2.
+
+
+
+
+      if (
+        response.data.role === "annotator" ||
+        response.data.role === "superuser"
+      ) {
+        navigation.navigate("SuperUserScreen");
+      } else {
+        navigation.navigate("VerifierScreen");
+      }

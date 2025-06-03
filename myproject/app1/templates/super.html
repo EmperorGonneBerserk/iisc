@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Upload Images</title>
+  </head>
+  <body>
+    <h2>Select & Upload Multiple Photos</h2>
+    <input type="file" id="photoInput" accept="image/*" multiple />
+    <button id="uploadBtn">Upload</button>
+    <div id="preview"></div>
+
+    <script>
+      let selectedFiles = [];
+
+      document
+        .getElementById("photoInput")
+        .addEventListener("change", function (event) {
+          let preview = document.getElementById("preview");
+          preview.innerHTML = ""; // Clear previous images
+          selectedFiles = Array.from(event.target.files); // Store files in an array
+
+          selectedFiles.forEach((file) => {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+              let img = document.createElement("img");
+              img.src = e.target.result;
+              img.style.width = "100px";
+              img.style.margin = "5px";
+              preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+          });
+        });
+
+      function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+          const cookies = document.cookie.split(";");
+          for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+              cookieValue = decodeURIComponent(
+                cookie.substring(name.length + 1)
+              );
+              break;
+            }
+          }
+        }
+        return cookieValue;
+      }
+
+      document
+        .getElementById("uploadBtn")
+        .addEventListener("click", function () {
+          if (selectedFiles.length === 0) {
+            alert("No images selected.");
+            return;
+          }
+
+          let formData = new FormData();
+          selectedFiles.forEach((file) => {
+            formData.append("images", file);
+          });
+
+          fetch("http://127.0.0.1:5000/api/super/", {
+            method: "POST",
+            body: formData,
+            headers: {
+              "X-CSRFToken": getCookie("csrftoken"), // ✅ CSRF token inside headers
+            },
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              alert("Upload successful!");
+              console.log("Uploaded images:", data);
+            })
+            .catch((error) => {
+              alert("Upload failed.");
+              console.error(error);
+            });
+        });
+    </script>
+  </body>
+</html>

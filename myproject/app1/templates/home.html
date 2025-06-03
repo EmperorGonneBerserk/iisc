@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>welcome</h1>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+
+      <div class="row mt-4">
+        {% for x in photos %}
+        <div class="col-md-3">
+            <img src="{{ x.image.url }}" alt="Photo" class="img-fluid rounded" style="width:150px; height:auto;">
+        </div>
+        {% endfor %}
+        <h1>these buttons can viewed by everyone except normaluser</h1>
+        <h1>Username-{{user.username}}</h1>
+        <h1>Role - {{user.role}}</h1>
+
+
+    </div>
+    {% if user.role == 'annotator' or user.role == 'superuser' or user.role == 'verifier' %}
+    <button type="submit" class="btn btn-primary">Annotated Images</button>
+    <button type="submit" class="btn btn-primary"> Images to be annotated</button>
+    {% endif %}
+    <a href="{% url 'logout' %}">
+        <button>Logout</button>
+  </a>
+    
+
+
+
+</body>
+</html>

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superuser Image Assignment</title>
+</head>
+<body>
+
+    <h1>Superuser Image Assignment</h1>
+
+    <form method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        {% for x in allcontext.context %}
+        <div class="col-md-3">
+            <img src="{{ x.image.url }}" alt="Photo" class="img-fluid rounded" style="width:150px; height:auto;">
+            <br>
+            <input type="checkbox" name="selectimages" value="{{ x.id }}"> Select
+        </div>  
+        {% endfor %}
+
+        {% for x in allcontext.context3 %}
+        <h1>{{x.username}}</h1>
+        <div class="col-md-3">
+        <input type="radio" name="user_id" value="{{ x.id }}"> Select
+    </div>  
+    {% endfor %}
+
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+</body>
+</html>
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superuser Image Assignment</title>
+</head>
+<body>
+
+    <h1>Superuser Image Assignment</h1>
+
+    <form method="POST" action="" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <h2>Select Images to Assign:</h2>
+        {% for x in allcontext.context %}
+        <div class="col-md-3">
+            <img src="{{ x.image.url }}" alt="Photo" class="img-fluid rounded" style="width:150px; height:auto;">
+            <br>
+            <input type="checkbox" name="selectedimages" value="{{ x.id }}"> Select
+        </div>  
+        {% endfor %}
+
+        <h2>Select a User:</h2>
+        {% for x in allcontext.context3 %}
+        <div class="col-md-3">
+            <input type="radio" name="user_id" value="{{ x.id }}"> {{ x.username }}  <!-- Use name for display -->
+        <!-- </div>  
+        {% endfor %}
+
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+
+</body>
+</html> --> -->
+

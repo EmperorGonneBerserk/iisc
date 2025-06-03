@@ -1,0 +1,211 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotate Image</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #image-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #annotatedImage {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Interactive Image Annotation</h1>
+    <div id="image-container">
+        <img id="annotatedImage" src="{{ Annotate.imagestobeannotated.url }}" alt="Annotated Image">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <button onclick="saveKeypoints()">Save Adjusted Keypoints</button>
+    <button onclick="next()">Save Next</button>
+    <button onclick="back()">Back</button>
+    
+    
+
+
+    <script>
+        const image = document.getElementById('annotatedImage');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const boundingBox = {{ Annotate.bounding_box|safe }};
+        let keypoints = {{ Annotate.annotations|safe }};
+        const originalWidth = {{ Annotate.originalwidth }};
+        const originalHeight = {{ Annotate.originalheight }};
+
+        let scaleX, scaleY;
+        let selectedPointIndex = null;
+        let isDragging = false;
+
+        function adjustCanvasSize() {
+            canvas.width = image.clientWidth;
+            canvas.height = image.clientHeight;
+
+            scaleX = image.clientWidth / originalWidth;
+            scaleY = image.clientHeight / originalHeight;
+        }
+
+        function drawAnnotations() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw bounding box
+            const [x1, y1, x2, y2] = boundingBox;
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x1 * scaleX, y1 * scaleY, (x2 - x1) * scaleX, (y2 - y1) * scaleY);
+
+            // Draw keypoints
+            ctx.fillStyle = 'blue';
+            keypoints.forEach(([x, y], index) => {
+                const adjustedX = x * scaleX;
+                const adjustedY = y * scaleY;
+
+                ctx.beginPath();
+                ctx.arc(adjustedX, adjustedY, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Optional: Draw index number
+                ctx.fillStyle = 'black';
+                ctx.fillText(index, adjustedX + 8, adjustedY - 8);
+                ctx.fillStyle = 'blue';
+            });
+        }
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: (evt.clientX - rect.left) / scaleX,
+                y: (evt.clientY - rect.top) / scaleY,
+            };
+        }
+
+        function findClosestPoint(mouseX, mouseY) {
+            let closestIndex = null;
+            let minDist = Infinity;
+
+            keypoints.forEach(([x, y], index) => {
+                const dist = Math.hypot(x - mouseX, y - mouseY);
+                if (dist < 10) { // Adjust sensitivity if needed
+                    if (dist < minDist) {
+                        minDist = dist;
+                        closestIndex = index;
+                    }
+                }
+            });
+
+            return closestIndex;
+        }
+
+        canvas.addEventListener('mousedown', function (evt) {
+            const { x, y } = getMousePos(evt);
+            const index = findClosestPoint(x, y);
+
+            if (index !== null) {
+                selectedPointIndex = index;
+                isDragging = true;
+            }
+        });
+
+        canvas.addEventListener('mousemove', function (evt) {
+            if (!isDragging) return;
+
+            const { x, y } = getMousePos(evt);
+            if (selectedPointIndex !== null) {
+                keypoints[selectedPointIndex] = [x, y];
+                drawAnnotations();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function () {
+            isDragging = false;
+            selectedPointIndex = null;
+        });
+
+        canvas.addEventListener('mouseleave', function () {
+            isDragging = false;
+            selectedPointIndex = null;
+        });
+
+        function saveKeypoints() {
+            const adjustedKeypoints = keypoints.map(([x, y]) => [
+                parseFloat(x.toFixed(2)),
+                parseFloat(y.toFixed(2)),
+            ]);
+
+            console.log('Adjusted Keypoints:', adjustedKeypoints);
+
+            fetch('/save_keypoints/{{ Annotate.id }}/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}',
+                },
+                body: JSON.stringify({ keypoints: adjustedKeypoints }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+        function next() {
+    var id = {{ Annotate.id|default:0 }};
+    if (id >= 0) {  
+        window.location.href = '/annotation/' + (id + 1);
+    } else {
+        alert('No next annotation available.');
+    }
+}
+
+function back() {
+    var id = {{ Annotate.id|default:0 }};
+    if (id > 1) {
+        window.location.href = '/annotation/' + (id - 1);
+    } else {
+        alert('No previous annotation available.');
+    }
+}
+
+
+
+        image.onload = () => {
+            adjustCanvasSize();
+            drawAnnotations();
+        };
+
+        window.addEventListener('resize', () => {
+            adjustCanvasSize();
+            drawAnnotations();
+        });
+    </script>
+</body>
+
+</html>
+
+
+

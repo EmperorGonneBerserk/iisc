@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>{{request.user.username}}</h1>
+    {% for x in context %}
+
+    <div class="col-md-3">
+        <a href="{% url 'annotateimage' x.id %}">
+            <img src="{{ x.imagestobeannotated.url }}" alt="Photo" class="img-fluid rounded" style="width:150px; height:auto;">
+        </a>
+    </div>
+    
+
+    {% endfor %}
+
+
+
+
+</body>
+</html>

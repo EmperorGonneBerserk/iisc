@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>User List</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone Number</th>
+                <th>Role</th>
+                <th>Update Role</th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.phno }}</td>
+                <td>{{ user.get_role_display }}</td>  <!-- Display human-readable role -->
+                <td>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <select name="role">
+                            {% for value, label in user.role_choices %}
+                                <option value="{{ value }}" {% if user.role == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button name="updateuser" type="submit">Update</button>
+                    </form>
+
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                          <button name ="deleteuser" type="submit">delete</button>
+                    </form>
+
+
+                </td>
+                <td>
+
+
+
+
+
+
+
+
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>
