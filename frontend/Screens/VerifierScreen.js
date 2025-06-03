@@ -16,7 +16,7 @@ const VerifierScreen = ({ navigation }) => {
   ];
 
   const openFolder = (folderId) => {
-    navigation.navigate("hello", { folderId });
+    navigation.navigate("Hello", { folderId });
   };
 
   return (
